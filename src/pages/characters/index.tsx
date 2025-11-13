@@ -7,6 +7,7 @@ import { CharacterCard } from "../../components/card/CharacterCard";
 import ErrorPage from "../error";
 import { API_FAILED } from "../../constant/appConstant";
 import { CharactersPageSkeleton } from "../../components/card/CharacterCardSkeleton";
+import { CharacterFilters } from "../../components/search/CharacterFilters";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -16,6 +17,9 @@ export function CharactersPage() {
     (state) => state.characters
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedHomeworld, setSelectedHomeworld] = useState<string>("all");
+  const [selectedSpecies, setSelectedSpecies] = useState<string>("all");
+  const [selectedFilm, setSelectedFilm] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -23,10 +27,27 @@ export function CharactersPage() {
   }, [dispatch]);
 
   const filteredCharacters = useMemo(() => {
-    return characters.filter((char: any) =>
-      char.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [characters, searchQuery]);
+    return characters.filter((char: any) => {
+      const matchesSearch = char.name
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesHomeworld =
+        selectedHomeworld === "all" ||
+        (char.homeworld && char.homeworld.name === selectedHomeworld);
+      const matchesSpecies =
+        selectedSpecies === "all" || char.species === selectedSpecies;
+      const matchesFilm =
+        selectedFilm === "all" || (char.films || []).includes(selectedFilm);
+
+      return matchesSearch && matchesHomeworld && matchesSpecies && matchesFilm;
+    });
+  }, [
+    characters,
+    searchQuery,
+    selectedHomeworld,
+    selectedSpecies,
+    selectedFilm,
+  ]);
 
   const totalPages = Math.ceil(filteredCharacters.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -53,8 +74,18 @@ export function CharactersPage() {
           </p>
         </div>
 
-        {/* Search bar */}
+        {/* Search bar and filters */}
+
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <CharacterFilters
+          characters={characters}
+          selectedHomeworld={selectedHomeworld}
+          setSelectedHomeworld={setSelectedHomeworld}
+          selectedSpecies={selectedSpecies}
+          setSelectedSpecies={setSelectedSpecies}
+          selectedFilm={selectedFilm}
+          setSelectedFilm={setSelectedFilm}
+        />
         <>
           {paginatedCharacters.length === 0 ? (
             <div className="text-center py-12 text-gray-400">

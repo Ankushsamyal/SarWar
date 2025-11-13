@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../auth/AuthProvider";
 
 const NAV_LINKS = [
-  { name: "Home", path: "/" },
+  { name: "Home", path: "/home" },
   { name: "About", path: "/about" },
   { name: "Characters", path: "/person" },
   { name: "Contact", path: "/contact" },
@@ -33,6 +34,7 @@ function NavLinkItem({
 // Navbar Component
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const auth = useAuth();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const closeMenu = () => setIsOpen(false);
@@ -54,6 +56,16 @@ export default function Navbar() {
             {NAV_LINKS.map((link) => (
               <NavLinkItem key={link.path} {...link} />
             ))}
+            {auth.isAuthenticated ? (
+              <button
+                onClick={() => auth.logout()}
+                className="hover:text-yellow-400 transition-colors duration-200"
+              >
+                Logout ({auth.user?.username})
+              </button>
+            ) : (
+              <NavLinkItem name="Login" path="/login" />
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -103,6 +115,19 @@ export default function Navbar() {
             {NAV_LINKS.map((link) => (
               <NavLinkItem key={link.path} {...link} onClick={closeMenu} />
             ))}
+            {auth.isAuthenticated ? (
+              <button
+                onClick={() => {
+                  auth.logout();
+                  closeMenu();
+                }}
+                className="border-blue-700 text-left hover:text-yellow-400"
+              >
+                Logout ({auth.user?.username})
+              </button>
+            ) : (
+              <NavLinkItem name="Login" path="/login" onClick={closeMenu} />
+            )}
           </div>
         </div>
       )}

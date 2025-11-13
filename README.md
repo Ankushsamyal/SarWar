@@ -2,15 +2,9 @@
 
 Lightweight React app that displays Star Wars characters and character cards. Built with Create React App (TypeScript template) and a small assets set of SVG character icons.
 
-## What this project contains
+---
 
-- React + TypeScript front-end
-- Character card components in `src/components/card`
-- Pagination and search controls
-- Character-related API services in `src/services/Character`
-- Character SVG assets in `src/assets/character` with an aggregator module (`index.ts`) that re-exports them
-
-## Quick start
+## How to run (local)
 
 1. Install dependencies
 
@@ -24,55 +18,68 @@ npm install
 npm start
 ```
 
-Open http://localhost:3000 in your browser. The app will hot-reload on changes.
+3. Run tests
 
-## Available scripts
-
-- `npm start` — start dev server
-- `npm test` — run tests
-- `npm run build` — production build
-- `npm run eject` — eject CRA config (irreversible)
-
-## Character assets / images
-
-All character SVGs live in `src/assets/character`. There's an `index.ts` aggregator that imports each SVG and exports them as named exports plus a default object map:
-
-- Named import example:
-
-```ts
-import { ObiWanKenobi } from "src/assets/character";
+```powershell
+npm test
 ```
 
-- Default map example:
+4. Build for production
 
-```ts
-import characterImages from "src/assets/character";
-// e.g. characterImages.ObiWanKenobi
+```powershell
+npm run build
 ```
 
-Use these imports in components like:
+Open http://localhost:3000 in your browser when the dev server starts.
 
-```tsx
-<img src={characterImages.ObiWanKenobi} alt="Obi-Wan Kenobi" />
-```
+---
 
-If you add or remove SVGs, keep `src/assets/character/index.ts` in sync (it is currently auto-managed in this repo).
+## What I implemented (features)
 
-## Project structure (important parts)
+- Character listing with search and pagination (client-side)
+- Filters: filter by Homeworld, Species, and Film. Filters can be combined with the search box (client-side filtering)
+- Character cards and a details modal that shows films and homeworld details
+- Character SVG assets aggregator: `src/assets/character/index.ts` exports named assets and a default map
+- Utilities: `FormatAllCharacter`, `formatDateForUI`, `getEmpty`, and helpers to get images / background colors
+- Mock authentication (client-only):
+  - `src/auth/AuthProvider.tsx` — mock login (`admin` / `password`), stores a mocked token in localStorage
+  - Silent token refresh logic (mocked): token stored in localStorage is refreshed on a timer to simulate silent refresh
+  - `src/pages/login` — simple login page
+  - Header shows Login/Logout based on auth state
+- Integration test: `src/__tests__/CharacterModal.int.test.tsx` tests that clicking a CharacterCard opens the modal and shows details
 
-- `src/components` — UI components (cards, pagination, search)
-- `src/services/Character` — API client and service methods to fetch SWAPI data
-- `src/store` / `src/slice` — Redux store and slices (characters state)
-- `src/assets/character` — SVGs and the aggregator
-- `src/utils` — helper functions (formatters, image maps)
+Bonus / small improvements included:
 
-## Notes & next steps
+- A small assets map (`starWarImages`) and `getCharacterImageByName` for consistent image lookup
+- Defensive data formatting when calling external APIs (FormatAllCharacter uses helper to fetch species/homeworld and maps film URLs to titles)
 
-- There's a placeholder entry for some characters (for example Anakin) without a matching SVG; add images to `src/assets/character` and export them from the aggregator.
-- If you'd like, I can:
-  - Replace all individual SVG imports across the codebase with the single aggregator import
-  - Run a TypeScript check / `npm run build` and fix any issues
+---
 
-## License & contact
+## Trade-offs & design choices
 
-This is a sample/demo project. Add your license or author details here.
+- Client-side filtering: I implemented filters and search on the client using data already fetched into Redux. This keeps the UI snappy and requires no backend changes, but it means:
+
+  - Not suitable for extremely large datasets (thousands+ items) — for that, server-side filtering or pagination should be used.
+  - Works well for the SWAPI-sized dataset and demo usage.
+
+- Mock authentication: The AuthProvider stores a base64-encoded payload in localStorage and refreshes it on a timer. This is intentionally simple for demo purposes:
+
+  - No real JWT validation or backend — do NOT use this for production authentication.
+  - The mock flow is helpful for demonstrating login/logout UI and token refresh behavior.
+
+- State & data fetching: I used a small Redux slice (`charactersSlice`) and a fetch thunk. I did not migrate to RTK Query or react-query to keep changes small and focused. Migrating to RTK Query would give caching, invalidation, and easier server-driven filtering.
+
+- Tests: I added a single integration-style test for the Character modal. This gives basic confidence but is not a full test suite — adding unit tests for utils and more UI tests is recommended.
+
+- Assets: Character SVGs are kept locally and re-exported via an aggregator to simplify imports. If the asset set grows, consider serving optimized images from a CDN and using lazy-loading.
+
+---
+
+## Credentials (mock)
+
+- Username: `admin`
+- Password: `password`
+
+The auth is mocked client-side. The app stores a mock token in localStorage and refreshes it automatically.
+
+---
