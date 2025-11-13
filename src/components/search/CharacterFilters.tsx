@@ -1,4 +1,5 @@
 import React from "react";
+import { Dropdown } from "../common/Dropdown";
 
 interface CharacterFiltersProps {
   characters: any[];
@@ -31,50 +32,42 @@ export const CharacterFilters: React.FC<CharacterFiltersProps> = ({
     new Set(characters.flatMap((c) => c.films || []))
   ).filter(Boolean);
 
+  const filters = [
+    {
+      label: "Homeworld",
+      options: homeworlds,
+      value: selectedHomeworld,
+      onChange: setSelectedHomeworld,
+      allLabel: "All Homeworlds",
+    },
+    {
+      label: "Species",
+      options: species,
+      value: selectedSpecies,
+      onChange: setSelectedSpecies,
+      allLabel: "All Species",
+    },
+    {
+      label: "Films",
+      options: films,
+      value: selectedFilm,
+      onChange: setSelectedFilm,
+      allLabel: "All Films",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div>
-        <select
-          value={selectedHomeworld}
-          onChange={(e) => setSelectedHomeworld(e.target.value)}
-          className="w-full px-4 py-2 bg-gray-800 rounded"
-        >
-          <option value="all">All Homeworlds</option>
-          {homeworlds.map((hw) => (
-            <option key={hw} value={hw}>
-              {hw}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <select
-          value={selectedSpecies}
-          onChange={(e) => setSelectedSpecies(e.target.value)}
-          className="w-full px-4 py-2 bg-gray-800 rounded"
-        >
-          <option value="all">All Species</option>
-          {species.map((sp) => (
-            <option key={sp} value={sp}>
-              {sp}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <select
-          value={selectedFilm}
-          onChange={(e) => setSelectedFilm(e.target.value)}
-          className="w-full px-4 py-2 bg-gray-800 rounded"
-        >
-          <option value="all">All Films</option>
-          {films.map((film) => (
-            <option key={film} value={film}>
-              {film}
-            </option>
-          ))}
-        </select>
-      </div>
+      {filters.map((filter) => (
+        <Dropdown
+          key={filter.label}
+          label={filter.label}
+          options={filter.options}
+          value={filter.value}
+          onChange={filter.onChange}
+          allLabel={filter.allLabel}
+        />
+      ))}
     </div>
   );
 };

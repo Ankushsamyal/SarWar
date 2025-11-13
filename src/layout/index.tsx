@@ -5,7 +5,7 @@ import ScrollToTop from "../utils/ScrollToTop";
 export default function MainLayout() {
   return (
     <div className="h-full w-full">
-      <div className="flex p-[30px] h-[calc(100vh-60px)] w-[calc(100%-60px)]">
+      <div className="flex p-[30px] h-[calc(100vh-60px)]">
         <main className="flex-1 px-4">
           <ScrollToTop />
           <Navbar />
